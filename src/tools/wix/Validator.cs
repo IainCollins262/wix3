@@ -27,7 +27,7 @@ namespace Microsoft.Tools.WindowsInstallerXml
         private string[] ices;
         private Output output;
         private string[] suppressedICEs;
-        private TempFileCollection tempFiles;
+        private string tempDirBasePath;
         private InstallUIHandler validationUIHandler;
         private bool validationSessionComplete;
 
@@ -36,6 +36,7 @@ namespace Microsoft.Tools.WindowsInstallerXml
         /// </summary>
         public Validator()
         {
+            this.tempDirBasePath = "";
             this.cubeFiles = new StringCollection();
             this.extension = new ValidatorExtension();
             this.validationUIHandler = new InstallUIHandler(this.ValidationUIHandler);
@@ -93,18 +94,18 @@ namespace Microsoft.Tools.WindowsInstallerXml
         {
             get
             {
-                return null == this.tempFiles ? String.Empty : this.tempFiles.BasePath;
+                return this.tempDirBasePath;
             }
 
             set
             {
                 if (null == value)
                 {
-                    this.tempFiles = new TempFileCollection();
+                    this.tempDirBasePath = System.IO.Path.GetTempPath() + Guid.NewGuid().ToString();
                 }
                 else
                 {
-                    this.tempFiles = new TempFileCollection(value);
+                    this.tempDirBasePath = System.IO.Path.GetDirectoryName(value) + Guid.NewGuid().ToString();
                 }
             }
         }
@@ -142,9 +143,9 @@ namespace Microsoft.Tools.WindowsInstallerXml
             this.extension.InitializeValidator();
 
             // if we don't have the temporary files object yet, get one
-            if (null == this.tempFiles)
+            if (this.tempDirBasePath == "")
             {
-                this.tempFiles = new TempFileCollection();
+                this.tempDirBasePath = System.IO.Path.GetTempPath() + Guid.NewGuid().ToString();
             }
             Directory.CreateDirectory(this.TempFilesLocation); // ensure the base path is there
 
@@ -393,17 +394,17 @@ namespace Microsoft.Tools.WindowsInstallerXml
         /// <returns>True if all files were deleted, false otherwise.</returns>
         public bool DeleteTempFiles()
         {
-            if (null == this.tempFiles)
+            if ( this.tempDirBasePath == "")
             {
                 return true; // no work to do
             }
             else
             {
-                bool deleted = Common.DeleteTempFiles(this.tempFiles.BasePath, this);
+                bool deleted = Common.DeleteTempFiles(this.tempDirBasePath, this);
 
                 if (deleted)
                 {
-                    this.tempFiles = null; // temp files have been deleted, no need to remember this now
+                    this.tempDirBasePath = ""; // temp files have been deleted, no need to remember this now
                 }
 
                 return deleted;

@@ -21,7 +21,7 @@ namespace Microsoft.Tools.WindowsInstallerXml
         private BinderFileManager fileManager;
 
         private Localizer localizer;
-        protected TempFileCollection tempFiles;
+        protected string tempDirBasePath;
         private WixVariableResolver wixVariableResolver;
 
         private string outputFile;
@@ -33,6 +33,7 @@ namespace Microsoft.Tools.WindowsInstallerXml
         {
             this.extensions = new List<BinderExtension>();
             this.inspectorExtensions = new List<InspectorExtension>();
+            this.tempDirBasePath = "";
             this.fileManager = new BinderFileManager();
             this.fileManager.TempFilesLocation = this.TempFilesLocation;
         }
@@ -101,16 +102,16 @@ namespace Microsoft.Tools.WindowsInstallerXml
             get
             {
                 // if we don't have the temporary files object yet, get one
-                if (null == this.tempFiles)
+                if (this.tempDirBasePath == "")
                 {
-                    this.tempFiles = new TempFileCollection();
+                    this.tempDirBasePath = System.IO.Path.GetTempPath() + Guid.NewGuid().ToString();
 
-                    // ensure the base path exists
-                    Directory.CreateDirectory(this.tempFiles.BasePath);
-                    this.fileManager.TempFilesLocation = this.tempFiles.BasePath;
+                    Directory.CreateDirectory(this.tempDirBasePath);
+
+                    this.fileManager.TempFilesLocation = tempDirBasePath;
                 }
-
-                return this.tempFiles.BasePath;
+                
+                return this.tempDirBasePath;
             }
 
             set
@@ -119,16 +120,16 @@ namespace Microsoft.Tools.WindowsInstallerXml
 
                 if (null == value)
                 {
-                    this.tempFiles = new TempFileCollection();
+                    this.tempDirBasePath = System.IO.Path.GetTempPath() + Guid.NewGuid().ToString();
                 }
                 else
-                {
-                    this.tempFiles = new TempFileCollection(value);
+                { 
+                    this.tempDirBasePath = System.IO.Path.GetDirectoryName(value) + Guid.NewGuid().ToString();
                 }
 
                 // ensure the base path exists
-                Directory.CreateDirectory(this.tempFiles.BasePath);
-                this.fileManager.TempFilesLocation = this.tempFiles.BasePath;
+                Directory.CreateDirectory(this.tempDirBasePath);
+                this.fileManager.TempFilesLocation = this.tempDirBasePath;
             }
         }
 
@@ -187,18 +188,16 @@ namespace Microsoft.Tools.WindowsInstallerXml
         /// <returns>True if all files were deleted, false otherwise.</returns>
         public virtual bool DeleteTempFiles()
         {
-            if (null == this.tempFiles)
+            if (this.tempDirBasePath == "" /*null == this.tempFiles*/)
             {
                 return true; // no work to do
             }
             else
             {
-                bool deleted = Common.DeleteTempFiles(this.TempFilesLocation, this.core);
-
+                bool deleted = Common.DeleteTempFiles(this.tempDirBasePath, this.core);
                 if (deleted)
                 {
-                    ((IDisposable)this.tempFiles).Dispose();
-                    this.tempFiles = null; // temp files have been deleted, no need to remember this now
+                    this.tempDirBasePath = "";
                 }
 
                 return deleted;

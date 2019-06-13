@@ -5262,7 +5262,9 @@ namespace Microsoft.Tools.WindowsInstallerXml
                                     {
                                         if (null == this.emptyFile)
                                         {
-                                            this.emptyFile = this.tempFiles.AddExtension("empty");
+                                            //this.emptyFile = this.tempFiles.AddExtension("empty");
+                                            this.emptyFile = System.IO.Path.GetDirectoryName(this.tempDirBasePath) + Guid.NewGuid().ToString() + ".empty";
+
                                             using (FileStream fileStream = File.Create(this.emptyFile))
                                             {
                                             }
@@ -5324,7 +5326,9 @@ namespace Microsoft.Tools.WindowsInstallerXml
                             {
                                 if (null == emptyFile)
                                 {
-                                    emptyFile = this.tempFiles.AddExtension("empty");
+                                    //emptyFile = this.tempFiles.AddExtension("empty");
+                                    emptyFile = System.IO.Path.GetDirectoryName(this.tempDirBasePath) + Guid.NewGuid().ToString() + ".empty";
+
                                     using (FileStream fileStream = File.Create(emptyFile))
                                     {
                                     }
@@ -5355,7 +5359,9 @@ namespace Microsoft.Tools.WindowsInstallerXml
                             {
                                 if (null == emptyFile)
                                 {
-                                    emptyFile = this.tempFiles.AddExtension("empty");
+                                    //emptyFile = this.tempFiles.AddExtension("empty");
+                                    emptyFile = System.IO.Path.GetDirectoryName(this.tempDirBasePath) + Guid.NewGuid().ToString() + ".empty";
+
                                     using (FileStream fileStream = File.Create(emptyFile))
                                     {
                                     }
