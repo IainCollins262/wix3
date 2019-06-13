@@ -1,0 +1,16 @@
+How to build:
+
+These steps were correct as of 13/06/19 with SDK 10.0.17763.0 installed if this SDK is not installed or if a newer SDK is requried then the properties in WixBuild.props should be edited.
+
+Terminology may not be 100% as my .NET knowledge is a bit lacking.
+
+These steps allow you to run non-strongly named components on your machine (And is required before you can build WIX)
+- Launch "Developer Command Prompt for VS 2017" as an Administrator
+- msbuild <WIX3 Repo Path>\tools\OneTimeWixBuildInitialization.proj
+- Close the command prompt window
+
+These steps build tools and other components which are required for building the main WIX executables/libraries. The msbuild step completed with errors on my machine but enough was built for me to continue.
+- Launch "Developer Command Prompt for VS 2017" as a normal user
+- msbuild <WIX3 Repo Path>/wix.proj /p:Configuration=Release
+
+The <WIX3 Repo Path>\src\Wix.sln can then be open using Visual Studio
